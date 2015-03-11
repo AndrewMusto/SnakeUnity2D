@@ -15,6 +15,7 @@ obj/
 /*.csproj
 *.pidb
 *.suo
+*.sln
 /*.sln
 *.user
 *.unityproj
