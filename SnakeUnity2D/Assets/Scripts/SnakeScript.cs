@@ -84,12 +84,14 @@ public class SnakeScript : MonoBehaviour {
         newSnake = new SnakePart(position, Direction.Up, null, null, 1, 3);
 		h = newSnake;
 		h.spriteRender.sprite = standardSnake.head;
+		h.part.name = "Head";
 		
 		position = gc.grid [1, 2];
 
         newSnake = new SnakePart(position, Direction.Up, h, null, 1, 2);
 		b = newSnake;
 		b.spriteRender.sprite = standardSnake.body;
+		b.part.name = "Snake";
 		
 		position = gc.grid [1, 1];
 
@@ -207,9 +209,10 @@ public class SnakeScript : MonoBehaviour {
 				h.part.transform.rotation = Quaternion.Euler(bendRotation);
 			}
 		}
-
+		h.part.name = "Snake";
 		h.forward = newSnake;
 		h = newSnake;
+		h.part.name = "Head";
 
 		if(hitObstacle){ 
 			gc.GameOver();
