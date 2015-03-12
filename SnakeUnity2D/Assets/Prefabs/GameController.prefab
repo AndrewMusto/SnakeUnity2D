@@ -39,7 +39,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01f542e52e088cb49808fb5a1150882c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prefab: {fileID: 117026, guid: 22c5e41fc9b73c74495610705164d472, type: 2}
+  dir: {fileID: 0}
+  gridSize: 14
+  timeSlice: 1
+  foodAmount: 5
+  obstacleAmount: 8
+  snakeObject: {fileID: 0}
+  floorTiles:
+    basicFloorTile: {fileID: 21300000, guid: ede47664416a14ee6b3765596003879d, type: 3}
+    outerWallTile: {fileID: 21300000, guid: 3247ac73aca0b4362a6ce53d48d71496, type: 3}
+    obstacleTile: {fileID: 21300000, guid: 3247ac73aca0b4362a6ce53d48d71496, type: 3}
+  foodTiles:
+    food: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1
