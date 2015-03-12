@@ -108,18 +108,33 @@ public class GameController : MonoBehaviour {
 	[Serializable]
 	public class FoodTile  {
 		public Sprite food;
-		
+		public Sprite movingFood;
+		private int randomSelect;
+
 		public void SpawnFood(Vector3 position){
 			GameObject tile = new GameObject();
 			tile.transform.position = position;
-			tile.tag = "food";
-			tile.name = "food";
-			BoxCollider2D box = tile.AddComponent<BoxCollider2D> ();
-			tile.AddComponent<DestroyOnEnter>();
-			box.isTrigger = true;
-			SpriteRenderer sprite = tile.AddComponent<SpriteRenderer> ();
-			sprite.sprite = food;
-			sprite.sortingLayerName = "foreGround";
+			randomSelect = Random.Range (0, 5);
+			if (randomSelect > 1) {
+				tile.tag = "food";
+				tile.name = "food";
+				BoxCollider2D box = tile.AddComponent<BoxCollider2D> ();
+				tile.AddComponent<DestroyOnEnter> ();
+				box.isTrigger = true;
+				SpriteRenderer sprite = tile.AddComponent<SpriteRenderer> ();
+				sprite.sprite = food;
+				sprite.sortingLayerName = "foreGround";
+			} else {
+				tile.tag = "food";
+				tile.name = "movingFood";
+				BoxCollider2D box = tile.AddComponent<BoxCollider2D> ();
+				tile.AddComponent<DestroyOnEnter> ();
+				tile.AddComponent<FoodAI>();
+				box.isTrigger = true;
+				SpriteRenderer sprite = tile.AddComponent<SpriteRenderer> ();
+				sprite.sprite = movingFood;
+				sprite.sortingLayerName = "foreGround";	
+			}
 		}
 	}
 
@@ -217,6 +232,10 @@ public class GameController : MonoBehaviour {
 		yield return new WaitForSeconds (timeSlice);
 		direction = nextDir;
 		if (!gameOver) {
+			FoodAI[] movingFood = FindObjectsOfType(typeof(FoodAI)) as FoodAI[];
+			for(int i=0; i<movingFood.Length; i++){
+				movingFood[i].MoveFood();
+			}
 			StartCoroutine (nextTurn());
 			snake.moveSnake (direction);
 			UpdateLevel();

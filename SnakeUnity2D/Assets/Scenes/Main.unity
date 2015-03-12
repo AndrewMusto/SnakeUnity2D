@@ -317,6 +317,11 @@ Prefab:
       propertyPath: dir
       value: 
       objectReference: {fileID: 1988347455}
+    - target: {fileID: 11427678, guid: 76e7d94b135834c2789eca0f15aac179, type: 2}
+      propertyPath: foodTiles.movingFood
+      value: 
+      objectReference: {fileID: 21300000, guid: 2e99fed17d1794f98b26938e3e29db0b,
+        type: 3}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 76e7d94b135834c2789eca0f15aac179, type: 2}
   m_IsPrefabParent: 0
