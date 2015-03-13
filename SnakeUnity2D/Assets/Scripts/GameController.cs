@@ -12,6 +12,7 @@ public class GameController : MonoBehaviour {
 
 	//tweakable parameters
 	public int gridSize = 10;
+	private int gridHeight =0;
 	public float timeSlice =1f;
 	public int foodAmount = 1;
 	public int obstacleAmount = 8;
@@ -30,6 +31,7 @@ public class GameController : MonoBehaviour {
 	private Direction direction = Direction.Up;
 	private Direction nextDir = Direction.Up;
 	private bool gameOver = false;
+	private float dynamicHeight = 0f;
 
 	//GUI
 	private float buttonWidth;
@@ -140,10 +142,10 @@ public class GameController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		grid = new Vector3[gridSize, gridSize]; 
+		//lock phones to portrait mode
+		Screen.orientation = ScreenOrientation.Portrait;
 		CreateCleanupObjects ();
 		CreateGrid ();
-		SetGUI ();
 		snakeObject = GameObject.FindGameObjectWithTag ("Player");
 		snake = snakeObject.GetComponent<SnakeScript> ();
 		snake.spawnSnake ();
@@ -171,7 +173,7 @@ public class GameController : MonoBehaviour {
 	void UpdateLevel(){
 		while (foodSpawned < foodAmount) {
 			int x = Random.Range (1, gridSize-1);
-			int y = Random.Range (1, gridSize-1);
+			int y = Random.Range (1, gridHeight-1);
 			if (Physics2D.OverlapCircle(grid[x,y], 0.4f) == null){
 				foodTiles.SpawnFood(grid[x,y]);
 				foodSpawned++;
@@ -184,12 +186,13 @@ public class GameController : MonoBehaviour {
 	}
 
 	void CreateGrid(){
+		DeclareDynamicGrid ();
 		Vector3 position;
 		for (int x=0; x<gridSize; x++) {
-			for (int y=0; y<gridSize; y++) {
+			for (int y=0; y<gridHeight; y++) {
 				position = new Vector3(x+0.5f,y+0.5f,0f);
 				grid[x,y] = position;
-				if(x==0 || y ==0 || x==gridSize-1 || y == gridSize-1){
+				if(x==0 || y ==0 || x==gridSize-1 || y == gridHeight-1){
 					floorTiles.SpawnOuterWallTile(position);
 				}
 				else floorTiles.SpawnFloorTile(position);
@@ -198,7 +201,7 @@ public class GameController : MonoBehaviour {
 		int count = 0;
 		while (count < obstacleAmount) {
 			int x = Random.Range (1, gridSize-1);
-			int y = Random.Range (1, gridSize-1);
+			int y = Random.Range (1, gridHeight-1);
 			if( x==1 && y>=1 && y < 4) continue;
 			if (Physics2D.OverlapCircle(grid[x,y], 0.4f) == null){
 				floorTiles.SpawnObstacleTile(grid[x,y]);
@@ -208,6 +211,39 @@ public class GameController : MonoBehaviour {
 		SetCamera ();
 	}
 
+	void DeclareDynamicGrid(){
+		//the section is for determining grid height. An iphone5  has a 9:16 (.56) aspect ratio,
+		//for a fat android this might be 3:4. For the fatter android, we want fewer rows in order to
+		//keep the GUI area the correct size
+		int tilePixelWidth = Screen.width / gridSize;
+		//when tile width approaches 1 pixel this resize alogrithm creates grids which encroach
+		//upon GUI area due to float/int interaction. resize such that tilewidth is 7 pixels
+		if (tilePixelWidth < 14) {
+			gridSize = Screen.width / 14;
+			tilePixelWidth = Screen.width / gridSize;
+			Debug.Log ("< Min allowable tilePixelWidth. Resizing gridSize to achieve 14 pixels");
+		}
+		float targetHeight = Screen.height * 0.6f;
+		while (dynamicHeight < targetHeight) {
+			dynamicHeight += tilePixelWidth;
+			gridHeight++;
+		}
+		gridHeight--;
+		dynamicHeight -= tilePixelWidth;
+		grid = new Vector3[gridSize, gridHeight];
+
+		//debug
+		Debug.Log ("tilePixelWidth "+tilePixelWidth);
+		Debug.Log ("Screen.width " + Screen.width);
+		Debug.Log ("Screen.Height " + Screen.height);
+		Debug.Log ("targetHeight " + targetHeight);
+		Debug.Log ("Calculated Dynamic Height " + dynamicHeight);
+		float debug = dynamicHeight / tilePixelWidth;
+		Debug.Log ("dynamic height/pixel width of one tile " + debug);
+		Debug.Log ("dynamically declared grid height in # of tiles " + gridHeight);
+		//end debug
+	}
+
 	void SetCamera(){
 		//set the camera's scale and position relative to an initialized grid
 		cam = Camera.main;
@@ -215,17 +251,20 @@ public class GameController : MonoBehaviour {
 		cam.orthographicSize = gridSize * ((Screen.height / 2f)/Screen.width );
 		Vector3 position;
 		float x = (float)gridSize / 2.0f;
-		float y = (float)gridSize - cam.orthographicSize;
+		float y = (float)gridHeight - cam.orthographicSize;
 		position = new Vector3 (x, y, -10f);
 		cam.transform.position = position;
+		SetGUI ();
 	}
 
 	void SetGUI(){
-		buttonWidth = Screen.width / 6;
-		upButton = new Rect ((float)(Screen.width / 2 - 0.5*buttonWidth),   (float)(3 * Screen.height / 4-buttonWidth),   buttonWidth, buttonWidth);
-		rightButton = new Rect ((float)(Screen.width / 2+0.5*buttonWidth),   (float)(3 * Screen.height / 4),   buttonWidth, buttonWidth);
-		downButton = new Rect ((float)(Screen.width / 2 - 0.5*buttonWidth),   (float)(3 * Screen.height / 4+buttonWidth),   buttonWidth, buttonWidth);
-		leftButton = new Rect ((float)(Screen.width / 2-1.5*buttonWidth),   (float)(3 * Screen.height / 4),   buttonWidth, buttonWidth);
+		float guiAreaHeight = Screen.height - dynamicHeight;
+		float guiButtonsTop = (dynamicHeight + guiAreaHeight / 6f);
+		buttonWidth = 2f * guiAreaHeight / 9f;
+		upButton = new Rect ((float)(Screen.width / 2 - 0.5*buttonWidth),   (float)(guiButtonsTop),   buttonWidth, buttonWidth);
+		rightButton = new Rect ((float)(Screen.width / 2+0.5*buttonWidth),   (float)(guiButtonsTop + buttonWidth),   buttonWidth, buttonWidth);
+		downButton = new Rect ((float)(Screen.width / 2 - 0.5*buttonWidth),   (float)(guiButtonsTop + 2*buttonWidth),   buttonWidth, buttonWidth);
+		leftButton = new Rect ((float)(Screen.width / 2-1.5*buttonWidth),   (float)(guiButtonsTop + buttonWidth),   buttonWidth, buttonWidth);
 	}
 
 	IEnumerator nextTurn(){
