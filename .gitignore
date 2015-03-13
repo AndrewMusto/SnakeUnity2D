@@ -14,7 +14,8 @@ obj/
 **/*.csproj
 *.pidb
 *.suo
-*.sln*
+*.sln
+**/*.sln
 *.user
 *.unityproj
 *.booproj
