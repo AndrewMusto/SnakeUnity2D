@@ -324,7 +324,7 @@ Prefab:
         type: 3}
     - target: {fileID: 11427678, guid: 76e7d94b135834c2789eca0f15aac179, type: 2}
       propertyPath: gridSize
-      value: 12
+      value: 100
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 76e7d94b135834c2789eca0f15aac179, type: 2}
