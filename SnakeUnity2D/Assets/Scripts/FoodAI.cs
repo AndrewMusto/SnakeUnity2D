@@ -7,6 +7,8 @@ public class FoodAI : MonoBehaviour {
 	private BoxCollider2D hitBox;
 	private RaycastHit2D ahead;
 	private Direction nextDir;
+	private int panicMoves = 0;
+	private int panicChoices = 0;
 
 	void Start(){
 		hitBox = this.gameObject.GetComponent<BoxCollider2D>();
@@ -15,11 +17,31 @@ public class FoodAI : MonoBehaviour {
 	public void MoveFood(){
 		snakeHead = GameObject.Find ("Head");
 		nextDir = ChooseDirection ();
-		if (CheckForObstacle (nextDir) == false) {
-			this.gameObject.transform.position = MoveThis(nextDir);
+		if (panicMoves <= 0) {
+			if (CheckForObstacle (nextDir) == false) {
+				this.gameObject.transform.position = MoveThis (nextDir);
+			} else {
+				panicMoves = 5;
+				MoveFood ();
+			}
+		} else {
+			bool panicDirectionChoice = true;
+			panicChoices = 6;
+			while(panicDirectionChoice == true && panicChoices > 0){
+				nextDir = ChooseDirectionPanic();
+				panicDirectionChoice = CheckForObstacle(nextDir);
+				if (panicDirectionChoice == true){
+					panicChoices--;
+				}
+			}
+			if (panicDirectionChoice != true){
+				this.gameObject.transform.position = MoveThis (nextDir);
+				panicMoves--;
+			}
 		}
 	}
 
+	//returns false if nothing in the way
 	bool CheckForObstacle(Direction dir){
 		hitBox.enabled = false;
 		switch (dir) {
@@ -89,6 +111,24 @@ public class FoodAI : MonoBehaviour {
 		return Direction.Up;
 	}
 
+	Direction ChooseDirectionPanic(){
+		int rand = Random.Range (0, 4);
+		
+		switch (rand){
+		case 0:
+			return Direction.Up;
+		case 1:
+			return Direction.Right;
+		case 2:
+			return Direction.Down;
+		case 3:
+			return Direction.Left;
+		}
+		Debug.Log("directional choice fell through FoodAI");
+		return Direction.Up;
+	}
+	
+	
 	Vector3 MoveThis(Direction direction){
 		switch (direction) {
 			case Direction.Up:
